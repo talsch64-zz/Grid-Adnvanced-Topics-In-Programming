@@ -29,15 +29,15 @@ TEST(GISEx4, AddToCell) {
     auto cell0 = grid.getCellAt(coord0);
     auto cell1 = grid.getCellAt(coord1);
     auto cell2 = grid.getCellAt(coord2);
-    EXPECT_EQ(cell0->numEntities<A>(), 1);
-    EXPECT_EQ(cell0->numEntities<B>(), 1);
-    EXPECT_EQ(cell0->numEntities<C>(), 1);
-    EXPECT_EQ(cell1->numEntities<A>(), 1);
-    EXPECT_EQ(cell1->numEntities<B>(), 1);
-    EXPECT_EQ(cell1->numEntities<C>(), 1);
-    EXPECT_EQ(cell2->numEntities<A>(), 1);
-    EXPECT_EQ(cell2->numEntities<B>(), 1);
-    EXPECT_EQ(cell2->numEntities<C>(), 1);
+    EXPECT_EQ(cell0->numEntities<A>(), (std::size_t) 1);
+    EXPECT_EQ(cell0->numEntities<B>(), (std::size_t) 1);
+    EXPECT_EQ(cell0->numEntities<C>(), (std::size_t) 1);
+    EXPECT_EQ(cell1->numEntities<A>(), (std::size_t) 1);
+    EXPECT_EQ(cell1->numEntities<B>(), (std::size_t) 1);
+    EXPECT_EQ(cell1->numEntities<C>(), (std::size_t) 1);
+    EXPECT_EQ(cell2->numEntities<A>(), (std::size_t) 1);
+    EXPECT_EQ(cell2->numEntities<B>(), (std::size_t) 1);
+    EXPECT_EQ(cell2->numEntities<C>(), (std::size_t) 1);
     EXPECT_EQ(cell0->getEntities<A>([](A &a) { return a.predTrue; }).size(), (std::size_t) 1);
     EXPECT_EQ(cell0->getEntities<B>([](B &b) { return b.predTrue; }).size(), (std::size_t) 1);
     EXPECT_EQ(cell0->getEntities<C>([](C &c) { return c.predTrue; }).size(), (std::size_t) 1);
@@ -59,11 +59,11 @@ TEST(GISEx4, getEntitiesWithAndWithoutLimit) {
     grid.add(coord0, *a1);
     grid.add(coord0, *b1);
     grid.add(coord0, *c1);
-    EXPECT_EQ(grid.getCellAt(coord0)->numEntities(), std::size_t(9));
+    EXPECT_EQ(grid.getCellAt(coord0)->numEntities(), (std::size_t) 9);
     auto cell0 = grid.getCellAt(coord0);
-    EXPECT_EQ(cell0->numEntities<A>(), 3);
-    EXPECT_EQ(cell0->numEntities<B>(), 3);
-    EXPECT_EQ(cell0->numEntities<C>(), 3);
+    EXPECT_EQ(cell0->numEntities<A>(), (std::size_t) 3);
+    EXPECT_EQ(cell0->numEntities<B>(), (std::size_t) 3);
+    EXPECT_EQ(cell0->numEntities<C>(), (std::size_t) 3);
     EXPECT_EQ(cell0->getEntities([](O &o) { return o.predTrue; }).size(), (std::size_t) 9);
     EXPECT_EQ(cell0->getEntities([](A &a) { return a.predTrue; }).size(), (std::size_t) 9);
 
@@ -215,7 +215,7 @@ TEST(GISEx4, CellIterator) {
 TEST(GISEx4, GridIterator) {
     Grid<A, 18> grid;
     auto gridIter = grid.begin();
-    int counter = 0;
+    std::size_t counter = 0;
     while (gridIter != grid.end()) {
         counter++;
         gridIter++;
@@ -224,7 +224,7 @@ TEST(GISEx4, GridIterator) {
     gridIter = grid.begin();
     auto &cell = *gridIter;
     cell.begin();
-    EXPECT_EQ(cell.numEntities(), 0);
+    EXPECT_EQ(cell.numEntities(), (std::size_t) 0);
     auto beginCopy = gridIter++; // beginCopy should point to grid.begin()
     auto &IterCopy = ++gridIter; // IterCopy should point to gridIter
     EXPECT_EQ(beginCopy, grid.begin());
@@ -251,7 +251,7 @@ TEST(GISEx4, BasicFunctionality) {
     const auto &cell3 = grid.getCellAt(Coordinates(Longitude(-1), Latitude(45)));
     std::vector<A *> entities = cell1->getEntities<A, std::function<bool(A &)>>([](A &a) { return a.predTrue; });
 
-    EXPECT_EQ(entities.size(), 1);
+    EXPECT_EQ(entities.size(), (std::size_t) 1);
     EXPECT_EQ(entities[0]->id, a1->id);
 
     const auto &view1 = cell1->getEntitiesView<A>();
@@ -276,9 +276,9 @@ TEST(GISEx4, BasicFunctionality) {
     viewIter3++;
     EXPECT_EQ(view3.begin(), view3.end());
 
-    EXPECT_EQ(grid.numRows(), 2);
-    EXPECT_EQ(grid.numCols(Coordinates(Longitude(0), Latitude(0))), 2);
-    EXPECT_EQ(grid.numCells(), 4);
+    EXPECT_EQ(grid.numRows(), (std::size_t) 2);
+    EXPECT_EQ(grid.numCols(Coordinates(Longitude(0), Latitude(0))), (std::size_t) 2);
+    EXPECT_EQ(grid.numCells(), (std::size_t) 4);
 
     grid.add(Coordinates(Longitude(0), Latitude(0)), *b1);
     grid.add(Coordinates(Longitude(0), Latitude(45)), *b2);
@@ -317,8 +317,8 @@ TEST(GISEx4, BasicFunctionality2) {
     Coordinates coord10(Longitude(-50), Latitude(0));
     Coordinates coord11(Longitude(-180), Latitude(0));
     Coordinates coord12(Longitude(180), Latitude(0));
-    EXPECT_EQ(grid.numRows(), 18);
-    EXPECT_EQ(grid.numCols(coord1), 36);
+    EXPECT_EQ(grid.numRows(), (std::size_t) 18);
+    EXPECT_EQ(grid.numCols(coord1), (std::size_t) 36);
 
     // Internal testing:
 //    EXPECT_EQ(grid.getRowIndex(coord0.latitude()), 9); // 10'th row
@@ -354,9 +354,9 @@ TEST(GISEx4, BasicFunctionality2) {
     const auto &viewB = cell->getEntitiesView<B>();
     const auto &viewC = cell->getEntitiesView<C>();
     //    const auto &viewO = cell->getEntitiesView<O>(); //should not work because O is not concrete class
-    EXPECT_EQ(viewA.size(), 0);
-    EXPECT_EQ(viewB.size(), 0);
-    EXPECT_EQ(viewC.size(), 0);
+    EXPECT_EQ(viewA.size(), (std::size_t) 0);
+    EXPECT_EQ(viewB.size(), (std::size_t) 0);
+    EXPECT_EQ(viewC.size(), (std::size_t) 0);
 
     grid.add(coord1, *a1);
     grid.add(coord1, *a2);
@@ -371,19 +371,19 @@ TEST(GISEx4, BasicFunctionality2) {
     grid.add(coord1, *o2);
     grid.add(coord1, *o3);
 
-    EXPECT_EQ(viewA.size(), 6);
-    EXPECT_EQ(viewB.size(), 3);
-    EXPECT_EQ(viewC.size(), 3);
-    EXPECT_EQ(cell->numEntities<A>(), 6);
-    EXPECT_EQ(cell->numEntities<B>(), 3);
-    EXPECT_EQ(cell->numEntities<C>(), 3);
-    EXPECT_EQ(cell->numEntities(), 12); // there are two O's
+    EXPECT_EQ(viewA.size(), (std::size_t)6);
+    EXPECT_EQ(viewB.size(), (std::size_t)3);
+    EXPECT_EQ(viewC.size(), (std::size_t)3);
+    EXPECT_EQ(cell->numEntities<A>(), (std::size_t)6);
+    EXPECT_EQ(cell->numEntities<B>(), (std::size_t)3);
+    EXPECT_EQ(cell->numEntities<C>(), (std::size_t)3);
+    EXPECT_EQ(cell->numEntities(), (std::size_t)12); // there are two O's
 
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 1; }).size(), 4); // a1, a2, a3, o1
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 2; }).size(), 2); // a4, a5
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 0; }).size(), 0); // none
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 0; }, 5).size(), 0); // none
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 1; }, 2).size(), 2);
+    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 1; }).size(), (std::size_t)4); // a1, a2, a3, o1
+    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 2; }).size(), (std::size_t) 2); // a4, a5
+    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 0; }).size(), (std::size_t)0); // none
+    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 0; }, 5).size(), (std::size_t)0); // none
+    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 1; }, 2).size(), (std::size_t)2);
 }
 
 /**
@@ -489,7 +489,7 @@ TEST_F(RandomTest, randomTest) {
     int queries = 100;
     for (int i = 0; i < queries; i++) {
         int randCoordIndex = std::rand() % coordinatesAmount;
-        int randLimit = std::rand() % 10;
+        std::size_t randLimit = std::rand() % 10;
         int randId = std::rand() % 100;
         auto cell = grid.getCellAt(coordVec[randCoordIndex]);
         auto entitiesA = cell->getEntities<A>([randId](A &a) { return a.id < randId; }, randLimit);
@@ -543,12 +543,12 @@ TEST(GISEx4, BonusGetCellsAt) {
 
     GridMock<A, 18> grid;
     auto cells = grid.getCellsAt(c0, Meters(10)); // expected 4 cells
-    EXPECT_EQ(cells.size(), 4);
+    EXPECT_EQ(cells.size(), (std::size_t) 4);
     for (auto cell: cells) {
         EXPECT_LE(grid.distanceFromCell(cell->getCoordinates(), c0), Meters(0));
     }
     cells = grid.getCellsAt(c2, Meters(10)); // expected 4 cells
-    EXPECT_EQ(cells.size(), 1);
+    EXPECT_EQ(cells.size(), (std::size_t) 1);
     cells = grid.getCellsAt(c0, Meters(5000000));
     for (auto cell: cells) {
         EXPECT_LE(grid.distanceFromCell(cell->getCoordinates(), c0), Meters(5000000));
@@ -556,7 +556,7 @@ TEST(GISEx4, BonusGetCellsAt) {
 
     GridMock<A, 36> grid2;
     auto cells2 = grid2.getCellsAt(c1, Meters(0));
-    EXPECT_EQ(cells2.size(), 4);
+    EXPECT_EQ(cells2.size(), (std::size_t) 4);
     cells2 = grid2.getCellsAt(c1, Meters(5000000));
     for (auto cell: cells2) {
         EXPECT_LE(grid2.distanceFromCell(cell->getCoordinates(), c1), Meters(5000000));
@@ -564,11 +564,11 @@ TEST(GISEx4, BonusGetCellsAt) {
 
     GridMock<A, 2> grid3;
     auto cells3 = grid3.getCellsAt(c2, Meters(0));
-    EXPECT_EQ(cells3.size(), 1);
+    EXPECT_EQ(cells3.size(), (std::size_t) 1);
     cells3 = grid3.getCellsAt(c0, Meters(0));
-    EXPECT_EQ(cells3.size(), 4);
+    EXPECT_EQ(cells3.size(), (std::size_t) 4);
     cells3 = grid3.getCellsAt(c1, Meters(0));
-    EXPECT_EQ(cells3.size(), 2);
+    EXPECT_EQ(cells3.size(), (std::size_t) 2);
     cells3 = grid3.getCellsAt(c2, Meters(2000000));
     for (auto cell: cells3) {
         EXPECT_LE(grid3.distanceFromCell(cell->getCoordinates(), c2), Meters(2000000));
@@ -588,42 +588,42 @@ TEST(GISEx4, BonusZeroDistance) {
 
     GridMock<A, 36> grid;
     auto cells = grid.getCellsAt(c0, Meters(0));
-    EXPECT_EQ(cells.size(), 4); // c0 is placed in the border of 4 cells
+    EXPECT_EQ(cells.size(), (std::size_t) 4); // c0 is placed in the border of 4 cells
     for (auto cell: cells) {
         EXPECT_EQ(grid.distanceFromCell(cell->getCoordinates(), c0), Meters(0));
     }
 
     cells = grid.getCellsAt(c1, Meters(0));
-    EXPECT_EQ(cells.size(), 4); // c1 is placed in the border of 4 cells
+    EXPECT_EQ(cells.size(), (std::size_t) 4); // c1 is placed in the border of 4 cells
     for (auto cell: cells) {
         EXPECT_EQ(grid.distanceFromCell(cell->getCoordinates(), c1), Meters(0));
     }
 
     cells = grid.getCellsAt(c2, Meters(0));
-    EXPECT_EQ(cells.size(), 1); // c2 is placed inside a cell
+    EXPECT_EQ(cells.size(), (std::size_t) 1); // c2 is placed inside a cell
     for (auto cell: cells) {
         EXPECT_EQ(grid.distanceFromCell(cell->getCoordinates(), c2), Meters(0));
     }
 
     cells = grid.getCellsAt(c3, Meters(0));
-    EXPECT_EQ(cells.size(), 2); // c3 is placed in the border of 2 cells (up and down neighbors)
+    EXPECT_EQ(cells.size(), (std::size_t) 2); // c3 is placed in the border of 2 cells (up and down neighbors)
     for (auto cell: cells) {
         EXPECT_EQ(grid.distanceFromCell(cell->getCoordinates(), c3), Meters(0));
     }
 
     cells = grid.getCellsAt(c4, Meters(0));
-    EXPECT_EQ(cells.size(), 2); // c4 is placed in the border of 2 cells (left and right neighbors)
+    EXPECT_EQ(cells.size(), (std::size_t) 2); // c4 is placed in the border of 2 cells (left and right neighbors)
     for (auto cell: cells) {
         EXPECT_EQ(grid.distanceFromCell(cell->getCoordinates(), c4), Meters(0));
     }
 
     GridMock<A, 2> grid2;
     auto cells2 = grid2.getCellsAt(c2, Meters(0));
-    EXPECT_EQ(cells2.size(), 1); // c2 is inside a cell
+    EXPECT_EQ(cells2.size(), (std::size_t) 1); // c2 is inside a cell
     cells2 = grid2.getCellsAt(c0, Meters(0));
-    EXPECT_EQ(cells2.size(), 4); // c0 is placed in the border of 4 cells
+    EXPECT_EQ(cells2.size(), (std::size_t) 4); // c0 is placed in the border of 4 cells
     cells2 = grid2.getCellsAt(c1, Meters(0));
-    EXPECT_EQ(cells2.size(), 2); // c1 is placed in the border of 4 cells
+    EXPECT_EQ(cells2.size(), (std::size_t) 2); // c1 is placed in the border of 4 cells
 
 }
 
