@@ -13,5 +13,5 @@ add_executable(Grid_ex4_skeleton_main
         GISNamedTypes.h
         main.cpp
         NamedType.h
-        TestClasses.cpp Grid.h GridMock.h TestClasses.h)
+        tests.cpp Grid.h GridMock.h TestClasses.h)
 target_link_libraries(Grid_ex4_skeleton_main gtest gtest_main pthread)
