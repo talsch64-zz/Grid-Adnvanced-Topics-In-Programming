@@ -380,26 +380,7 @@ public:
         return GridIterator(rows + num_rows);
     }
 
-
 protected:    // protected for mocking
-    virtual std::size_t getRowIndex(Latitude lat) const {
-        std::size_t rowIndex = std::floor(
-                static_cast<double>(CoordinatesMath::n_pole_lat - lat) / static_cast<double>(rowLatitudeDiff));
-        return std::min(rowIndex, num_rows - 1); // if lat == -90 then rowIndex should be the last index
-    }
-
-    virtual std::size_t getColIndex(Longitude lng, std::size_t rowIndex) const {
-        std::size_t rowSize = rows[rowIndex].size();
-        double lngDiff = DEGREES_360 / rowSize;
-        double coordsLng = static_cast<double>(lng);
-        if (coordsLng < 0) {
-            coordsLng += DEGREES_360;
-        }
-        std::size_t cellIndex = std::floor(coordsLng / lngDiff);
-        return cellIndex;
-    }
-
-
     // For mocking! Needed for testing the distance from a cell because cell is private.
     virtual Meters distanceFromCell(Coordinates cellCoord, Coordinates coordinates) const {
         auto cell = getCellAt(cellCoord);
@@ -436,6 +417,23 @@ private:
             upperPerimeter = lowerPerimeter;
         }
 
+    }
+
+    std::size_t getRowIndex(Latitude lat) const {
+        std::size_t rowIndex = std::floor(
+                static_cast<double>(CoordinatesMath::n_pole_lat - lat) / static_cast<double>(rowLatitudeDiff));
+        return std::min(rowIndex, num_rows - 1); // if lat == -90 then rowIndex should be the last index
+    }
+
+    std::size_t getColIndex(Longitude lng, std::size_t rowIndex) const {
+        std::size_t rowSize = rows[rowIndex].size();
+        double lngDiff = DEGREES_360 / rowSize;
+        double coordsLng = static_cast<double>(lng);
+        if (coordsLng < 0) {
+            coordsLng += DEGREES_360;
+        }
+        std::size_t cellIndex = std::floor(coordsLng / lngDiff);
+        return cellIndex;
     }
 
     /**

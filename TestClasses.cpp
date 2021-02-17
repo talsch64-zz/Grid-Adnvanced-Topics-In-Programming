@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "Grid.h"
 #include "GridMock.h"
-#include "tests.h"
+#include "TestClasses.h"
 
 
 TEST(GISEx4, AddToCell) {
@@ -303,7 +303,7 @@ TEST(GISEx4, BasicFunctionality) {
 }
 
 TEST(GISEx4, BasicFunctionality2) {
-    GridMock<O, 18> grid;
+    Grid<O, 18> grid;
     Coordinates coord0(Longitude(0), Latitude(0));
     Coordinates coord1(Longitude(0), Latitude(10));
     Coordinates coord2(Longitude(0), Latitude(20));
@@ -319,21 +319,22 @@ TEST(GISEx4, BasicFunctionality2) {
     Coordinates coord12(Longitude(180), Latitude(0));
     EXPECT_EQ(grid.numRows(), 18);
     EXPECT_EQ(grid.numCols(coord1), 36);
-    EXPECT_EQ(grid.getRowIndex(coord0.latitude()), 9); // 10'th row
-    EXPECT_EQ(grid.getRowIndex(coord1.latitude()), 8); // 9'th row
-    EXPECT_EQ(grid.getRowIndex(coord2.latitude()), 7); // 8'th row
-    EXPECT_EQ(grid.getRowIndex(coord3.latitude()), 0); // 7'th row
-    EXPECT_EQ(grid.getRowIndex(coord4.latitude()), 10); // 11'th row
-    EXPECT_EQ(grid.getRowIndex(coord5.latitude()), 17); // 11'th row
 
-    EXPECT_EQ(grid.getColIndex(coord0.longitude(), grid.getRowIndex(coord0.latitude())), 0);
-    EXPECT_EQ(grid.getColIndex(coord7.longitude(), grid.getRowIndex(coord7.latitude())), 0);
-    EXPECT_EQ(grid.getColIndex(coord6.longitude(), grid.getRowIndex(coord6.latitude())), 1);
-    EXPECT_EQ(grid.getColIndex(coord8.longitude(), grid.getRowIndex(coord8.latitude())), 35);
-    EXPECT_EQ(grid.getColIndex(coord9.longitude(), grid.getRowIndex(coord9.latitude())), 35);
-    EXPECT_EQ(grid.getColIndex(coord10.longitude(), grid.getRowIndex(coord10.latitude())), 31);
-    EXPECT_EQ(grid.getColIndex(coord11.longitude(), grid.getRowIndex(coord11.latitude())), 18);
-    EXPECT_EQ(grid.getColIndex(coord12.longitude(), grid.getRowIndex(coord12.latitude())), 18);
+    // Internal testing:
+//    EXPECT_EQ(grid.getRowIndex(coord0.latitude()), 9); // 10'th row
+//    EXPECT_EQ(grid.getRowIndex(coord1.latitude()), 8); // 9'th row
+//    EXPECT_EQ(grid.getRowIndex(coord2.latitude()), 7); // 8'th row
+//    EXPECT_EQ(grid.getRowIndex(coord3.latitude()), 0); // 7'th row
+//    EXPECT_EQ(grid.getRowIndex(coord4.latitude()), 10); // 11'th row
+//    EXPECT_EQ(grid.getRowIndex(coord5.latitude()), 17); // 11'th row
+//    EXPECT_EQ(grid.getColIndex(coord0.longitude(), grid.getRowIndex(coord0.latitude())), 0);
+//    EXPECT_EQ(grid.getColIndex(coord7.longitude(), grid.getRowIndex(coord7.latitude())), 0);
+//    EXPECT_EQ(grid.getColIndex(coord6.longitude(), grid.getRowIndex(coord6.latitude())), 1);
+//    EXPECT_EQ(grid.getColIndex(coord8.longitude(), grid.getRowIndex(coord8.latitude())), 35);
+//    EXPECT_EQ(grid.getColIndex(coord9.longitude(), grid.getRowIndex(coord9.latitude())), 35);
+//    EXPECT_EQ(grid.getColIndex(coord10.longitude(), grid.getRowIndex(coord10.latitude())), 31);
+//    EXPECT_EQ(grid.getColIndex(coord11.longitude(), grid.getRowIndex(coord11.latitude())), 18);
+//    EXPECT_EQ(grid.getColIndex(coord12.longitude(), grid.getRowIndex(coord12.latitude())), 18);
 
     std::shared_ptr<A> a1 = std::make_shared<A>(1, "A");
     std::shared_ptr<A> a2 = std::make_shared<A>(1, "A");
