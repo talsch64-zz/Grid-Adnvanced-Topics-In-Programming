@@ -1,3 +1,5 @@
+// talschneider 206897514
+
 #pragma once
 
 #include "GISNamedTypes.h"
@@ -26,7 +28,6 @@ template<typename Entity, std::size_t num_rows> requires (num_rows > 0)
 class Grid {
     class Cell {
         friend class Grid<Entity, num_rows>;
-
         const std::size_t rowIndex;
         const std::size_t colIndex;
         Coordinates coordinates; // coordinates inside the cell (the center)
@@ -198,8 +199,8 @@ class Grid {
         /**
          * CellIterator is an iterator that iterates between all entities inside a cell.
          * typeIter represents an iterator on the different entity type containers in the cell (i.e. iterator of Cell::entitiesMap)
-         * typeIterEnd represents the end of the typeIterator
-         * entityIterator iterates over the entities themselves. It iterates on a specific type pointed bu typeIter
+         * typeIterEnd represents the end of the typeIter
+         * entityIter iterates over the entities themselves. It iterates on a specific type pointed bu typeIter
          * until iterated on all the entities in that specific type. When the end of the current specific type is reached,
          * typeIter is incremented and entityIter is assigned to the begin() of the next type.
          */
@@ -212,7 +213,6 @@ class Grid {
             mutable typename std::vector<Entity *>::const_iterator entityIter;
 
             /**
-             *
              * @param begin iterator that represents the beginning which the typeIter begins with.
              * @param end iterator that represents the end of the typeIter (i.e entitiesMap.end())
              */
@@ -235,7 +235,7 @@ class Grid {
                 if (entityIter == (*typeIter).second.end()) { // reached the end of the current type
                     typeIter++;
                     if (typeIter != typeIterEnd) {
-                        // if not reached the end of entitiesMap types skip to the next type
+                        // if not reached the end of entitiesMap types move to the next type
                         entityIter = (*typeIter).second.begin();
                     }
                 }
@@ -373,11 +373,11 @@ public:
     // 1. Only non empty Cells, if is_sparse==true
     // 2. All Cells, if is_sparse==false
     auto begin() const noexcept {
-        return GridIterator(rows);
+        return GridIterator(rows, 0);
     }
 
     auto end() const noexcept {
-        return GridIterator(rows + num_rows);
+        return GridIterator(rows, num_rows);
     }
 
 protected:    // protected for mocking
@@ -498,7 +498,7 @@ private:
 
     /**
      * @brief GridIterator iterates over all the cells in the grid, starting from the first row (the upper row) and ending
-     * at the last row (lower low).
+     * at the last row (lower row).
      * rows - reference to the rows array Grid.
      * currRowIndex - the current row's index which the iterator iterates over
      * cellIter - iterates over the cells of the row number currRowIndex
@@ -508,10 +508,10 @@ private:
         friend class Grid<Entity, num_rows>;
 
         const std::vector<Cell> *rows;
-        std::size_t currRowIndex = 0;
+        std::size_t currRowIndex;
         typename std::vector<Grid::Cell>::const_iterator cellIter;
 
-        GridIterator(const std::vector<Cell> *rows) : rows(rows), cellIter(rows[0].begin()) {}
+        GridIterator(const std::vector<Cell> *rows, std::size_t rowIndex) : rows(rows), currRowIndex(rowIndex), cellIter(rows[rowIndex].begin()) {}
 
     public:
         const Cell &operator*() {
@@ -523,6 +523,8 @@ private:
             if (cellIter == rows[currRowIndex].end()) {
                 cellIter = currRowIndex != num_rows ? rows[++currRowIndex].begin()
                                                     : std::vector<Grid::Cell>().begin();
+                // If hasn't reached the last row increment currRowIndex and iterate over the next row,
+                // else return an empty iterator to mark the end.
             }
             return *this;
         }
