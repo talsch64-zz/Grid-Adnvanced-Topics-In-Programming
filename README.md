@@ -14,7 +14,9 @@
 * The CellIterator iterates over all the entities of each type before moving to the next type.
 * The CellIterator uses two C++ iterators for iterating over the entities: typeIter and EntityIter.
 * typeIter represents an iterator on the different entity type containers in the cell (i.e. iterator of Cell::entitiesMap)
-* entityIter iterates over the entities themselves. It iterates on a specific type pointed bu typeIter
+* entityIter iterates over the entities themselves. It iterates on a specific type pointed by typeIter. When the end of the current specific type is reached,
+ typeIter is incremented and entityIter is assigned to the begin() of the next type.
+* There is additional iterator called typeIterEnd that represents the end of the typeIter (i.e entitiesMap.end())
 
 
 ##GridIterator 

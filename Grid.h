@@ -207,10 +207,9 @@ class Grid {
         struct CellIterator {
         private:
             friend class Cell;
-
-            mutable typename std::unordered_map<std::type_index, std::vector<Entity *>>::iterator typeIter;
+            typename std::unordered_map<std::type_index, std::vector<Entity *>>::iterator typeIter;
             typename std::unordered_map<std::type_index, std::vector<Entity *>>::iterator typeIterEnd;
-            mutable typename std::vector<Entity *>::const_iterator entityIter;
+            typename std::vector<Entity *>::iterator entityIter;
 
             /**
              * @param begin iterator that represents the beginning which the typeIter begins with.
