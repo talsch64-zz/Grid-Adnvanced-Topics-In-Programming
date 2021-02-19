@@ -14,9 +14,15 @@
 * The CellIterator iterates over all the entities of each type before moving to the next type.
 * The CellIterator uses two C++ iterators for iterating over the entities: typeIter and EntityIter.
 * typeIter represents an iterator on the different entity type containers in the cell (i.e. iterator of Cell::entitiesMap)
-* entityIter iterates over the entities themselves. It iterates on a specific type pointed by typeIter. When the end of the current specific type is reached,
+* entityIter iterates over the entities themselves. It iterates on a specific type pointed by typeIter. When the end of
+ the current specific type is reached,
  typeIter is incremented and entityIter is assigned to the begin() of the next type.
 * There is additional iterator called typeIterEnd that represents the end of the typeIter (i.e entitiesMap.end())
+* The ++ operators and the constructor are running in O(n) complexity in the worst case, where n is the number of different
+ typeids inside the cell. the worst case achieved when getEntitiesView was called n times but no entities were inserted.
+ The alternative solution I thought about was to use additional memory and store all the pointers of entities that are
+  inserted to the cell inside another container and then the iteration over the cell would be O(1) time and O(m) 
+  additional memory, where m is the number of entities that were inserted to the cell.
 
 
 ##GridIterator 

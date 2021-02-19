@@ -5,7 +5,7 @@
 #include "TestClasses.h"
 
 
-TEST(GISEx4, AddToCell) {
+TEST(GISEx4, CellInsertions) {
     Grid<A, 2> grid;
     std::shared_ptr<A> a1 = std::make_shared<A>(1, "A");
     std::shared_ptr<B> b1 = std::make_shared<B>(1, "B");
@@ -150,8 +150,6 @@ TEST(GISEx4, ViewTest) {
     const auto &viewA = cell->getEntitiesView<A>();
     const auto &viewB = cell->getEntitiesView<B>();
     const auto &viewC = cell->getEntitiesView<C>();
-    // const auto &viewO = cell->getEntitiesView<O>();
-    // should not work because O is not concrete class
     EXPECT_EQ(viewA.size(), (std::size_t) 0);
     EXPECT_EQ(viewB.size(), (std::size_t) 0);
     EXPECT_EQ(viewC.size(), (std::size_t) 0);
@@ -178,25 +176,28 @@ TEST(GISEx4, ViewTest) {
     EXPECT_EQ(cell->numEntities(), (std::size_t) 12);
 }
 
+
+/**
+ * Tests the basic functionality of CellIterator: ++, *, == operators and begin() and end() functions
+ */
 TEST(GISEx4, CellIterator) {
     Grid<A, 18> grid;
     Coordinates coord0(Longitude(0), Latitude(0));
-    std::shared_ptr<A> a1 = std::make_shared<A>(1, "A");
     auto cell = grid.getCellAt(coord0);
-    cell->getEntitiesView<A>(); // initialize empty vector of A's inside the cell
-    cell->getEntitiesView<B>(); // initialize empty vector of B's inside the cell
-    EXPECT_EQ(cell->begin(), cell->end()); // no entities were added yet.
+    std::shared_ptr<A> a1 = std::make_shared<A>(1, "A");
     grid.add(coord0, *a1);
     grid.add(coord0, *a1);
     grid.add(coord0, *a1);
     grid.add(coord0, *a1);
     grid.add(coord0, *a1);
     grid.add(coord0, *a1);
-    EXPECT_NE(cell->begin(), cell->end()); // no entities were added yet.
+    EXPECT_NE(cell->begin(), cell->end());
     auto cellIter = cell->begin();
     A *a = *cellIter;
     a->whatA(); //non-const method is allowed to be called
     EXPECT_EQ(typeid(*cellIter), typeid(A *));
+
+    // ---------- test the ++ operators ----------
     std::size_t counter = 0;
     while (cellIter != cell->end()) {
         counter++;
@@ -208,8 +209,72 @@ TEST(GISEx4, CellIterator) {
     auto &cellIter3 = ++cellIter2;
     EXPECT_EQ(beginCopy, cell->begin());
     EXPECT_EQ(cellIter3, cellIter2);
+
+    // ---------- test empty cell ----------
     auto emptyCell = grid.getCellAt(Coordinates(Longitude(100), Latitude(20)));
     EXPECT_EQ(emptyCell->begin(), emptyCell->end());
+}
+
+/**
+ * Tests that the CellIterator functions properly after getEntitiesView was called.
+ * I created 3 different cells and 3 entities of different type and inserted each cell different entity
+ * so that the order of the iterations would be different in each cell.
+ */
+TEST(GISEx4, CellIteratorAfterView) {
+    Grid<A, 18> grid;
+    Coordinates coord0(Longitude(0), Latitude(0));
+    Coordinates coord1(Longitude(50), Latitude(50));
+    Coordinates coord2(Longitude(-50), Latitude(-50));
+
+    std::shared_ptr<A> a1 = std::make_shared<A>(1, "A");
+    std::shared_ptr<B> b1 = std::make_shared<B>(1, "B");
+    std::shared_ptr<C> c1 = std::make_shared<C>(1, "C");
+
+    auto cell0 = grid.getCellAt(coord0);
+    auto cell1 = grid.getCellAt(coord1);
+    auto cell2 = grid.getCellAt(coord2);
+
+    // initialize empty vector of entities inside the cells:
+    cell0->getEntitiesView<A>();
+    cell0->getEntitiesView<B>();
+    cell0->getEntitiesView<C>();
+    cell1->getEntitiesView<A>();
+    cell1->getEntitiesView<B>();
+    cell1->getEntitiesView<C>();
+    cell2->getEntitiesView<A>();
+    cell2->getEntitiesView<B>();
+    cell2->getEntitiesView<C>();
+
+    // no entities were added yet:
+    EXPECT_EQ(cell0->begin(), cell0->end());
+    EXPECT_EQ(cell1->begin(), cell1->end());
+    EXPECT_EQ(cell2->begin(), cell2->end());
+
+    // add different entity to different cells to test different orders of iterations:
+    grid.add(coord0, *a1);
+    grid.add(coord1, *b1);
+    grid.add(coord2, *c1);
+
+    auto iter0 = cell0->begin();
+    for (std::size_t i = 0; i < cell0->numEntities(); i++) {
+        *iter0;
+        iter0++;
+    }
+    EXPECT_EQ(iter0, cell0->end());
+
+    auto iter1 = cell1->begin();
+    for (std::size_t i = 0; i < cell1->numEntities(); i++) {
+        *iter1;
+        iter1++;
+    }
+    EXPECT_EQ(iter1, cell1->end());
+
+    auto iter2 = cell2->begin();
+    for (std::size_t i = 0; i < cell2->numEntities(); i++) {
+        *iter2;
+        iter2++;
+    }
+    EXPECT_EQ(iter2, cell2->end());
 }
 
 TEST(GISEx4, GridIterator) {
@@ -231,6 +296,48 @@ TEST(GISEx4, GridIterator) {
     EXPECT_EQ(IterCopy, gridIter);
 }
 
+TEST(GISEx4, RowsAndColsCalculations) {
+    Grid<O, 18> grid;
+    Coordinates coord0(Longitude(0), Latitude(0));
+    Coordinates coord1(Longitude(0), Latitude(10));
+    Coordinates coord2(Longitude(0), Latitude(20));
+    Coordinates coord3(Longitude(0), Latitude(90));
+    Coordinates coord4(Longitude(0), Latitude(-10));
+    Coordinates coord5(Longitude(0), Latitude(-90));
+    Coordinates coord6(Longitude(10), Latitude(0));
+    Coordinates coord7(Longitude(5), Latitude(0));
+    Coordinates coord8(Longitude(-5), Latitude(0));
+    Coordinates coord9(Longitude(-10), Latitude(0));
+    Coordinates coord10(Longitude(-50), Latitude(0));
+    Coordinates coord11(Longitude(-180), Latitude(0));
+    Coordinates coord12(Longitude(180), Latitude(0));
+    EXPECT_EQ(grid.numRows(), (std::size_t) 18);
+    EXPECT_EQ(grid.numCols(coord1), (std::size_t) 36);
+
+    // Internal testing:
+//    EXPECT_EQ(grid.getRowIndex(coord0.latitude()), 9); // 10'th row
+//    EXPECT_EQ(grid.getRowIndex(coord1.latitude()), 8); // 9'th row
+//    EXPECT_EQ(grid.getRowIndex(coord2.latitude()), 7); // 8'th row
+//    EXPECT_EQ(grid.getRowIndex(coord3.latitude()), 0); // 7'th row
+//    EXPECT_EQ(grid.getRowIndex(coord4.latitude()), 10); // 11'th row
+//    EXPECT_EQ(grid.getRowIndex(coord5.latitude()), 17); // 11'th row
+//    EXPECT_EQ(grid.getColIndex(coord0.longitude(), grid.getRowIndex(coord0.latitude())), 0);
+//    EXPECT_EQ(grid.getColIndex(coord7.longitude(), grid.getRowIndex(coord7.latitude())), 0);
+//    EXPECT_EQ(grid.getColIndex(coord6.longitude(), grid.getRowIndex(coord6.latitude())), 1);
+//    EXPECT_EQ(grid.getColIndex(coord8.longitude(), grid.getRowIndex(coord8.latitude())), 35);
+//    EXPECT_EQ(grid.getColIndex(coord9.longitude(), grid.getRowIndex(coord9.latitude())), 35);
+//    EXPECT_EQ(grid.getColIndex(coord10.longitude(), grid.getRowIndex(coord10.latitude())), 31);
+//    EXPECT_EQ(grid.getColIndex(coord11.longitude(), grid.getRowIndex(coord11.latitude())), 18);
+//    EXPECT_EQ(grid.getColIndex(coord12.longitude(), grid.getRowIndex(coord12.latitude())), 18);
+
+    Grid<O, 25> grid2;
+    EXPECT_EQ(grid2.numRows(), (std::size_t) 25);
+    EXPECT_EQ(grid2.numCols(coord0), (std::size_t) 50);
+
+    Grid<O, 33> grid3;
+    EXPECT_EQ(grid3.numRows(), (std::size_t) 33);
+    EXPECT_EQ(grid3.numCols(coord0), (std::size_t) 66);
+}
 
 TEST(GISEx4, BasicFunctionality) {
     Grid<A, 2> grid;
@@ -302,90 +409,6 @@ TEST(GISEx4, BasicFunctionality) {
     EXPECT_EQ(emptyEntities.size(), (std::size_t) 0);
 }
 
-TEST(GISEx4, BasicFunctionality2) {
-    Grid<O, 18> grid;
-    Coordinates coord0(Longitude(0), Latitude(0));
-    Coordinates coord1(Longitude(0), Latitude(10));
-    Coordinates coord2(Longitude(0), Latitude(20));
-    Coordinates coord3(Longitude(0), Latitude(90));
-    Coordinates coord4(Longitude(0), Latitude(-10));
-    Coordinates coord5(Longitude(0), Latitude(-90));
-    Coordinates coord6(Longitude(10), Latitude(0));
-    Coordinates coord7(Longitude(5), Latitude(0));
-    Coordinates coord8(Longitude(-5), Latitude(0));
-    Coordinates coord9(Longitude(-10), Latitude(0));
-    Coordinates coord10(Longitude(-50), Latitude(0));
-    Coordinates coord11(Longitude(-180), Latitude(0));
-    Coordinates coord12(Longitude(180), Latitude(0));
-    EXPECT_EQ(grid.numRows(), (std::size_t) 18);
-    EXPECT_EQ(grid.numCols(coord1), (std::size_t) 36);
-
-    // Internal testing:
-//    EXPECT_EQ(grid.getRowIndex(coord0.latitude()), 9); // 10'th row
-//    EXPECT_EQ(grid.getRowIndex(coord1.latitude()), 8); // 9'th row
-//    EXPECT_EQ(grid.getRowIndex(coord2.latitude()), 7); // 8'th row
-//    EXPECT_EQ(grid.getRowIndex(coord3.latitude()), 0); // 7'th row
-//    EXPECT_EQ(grid.getRowIndex(coord4.latitude()), 10); // 11'th row
-//    EXPECT_EQ(grid.getRowIndex(coord5.latitude()), 17); // 11'th row
-//    EXPECT_EQ(grid.getColIndex(coord0.longitude(), grid.getRowIndex(coord0.latitude())), 0);
-//    EXPECT_EQ(grid.getColIndex(coord7.longitude(), grid.getRowIndex(coord7.latitude())), 0);
-//    EXPECT_EQ(grid.getColIndex(coord6.longitude(), grid.getRowIndex(coord6.latitude())), 1);
-//    EXPECT_EQ(grid.getColIndex(coord8.longitude(), grid.getRowIndex(coord8.latitude())), 35);
-//    EXPECT_EQ(grid.getColIndex(coord9.longitude(), grid.getRowIndex(coord9.latitude())), 35);
-//    EXPECT_EQ(grid.getColIndex(coord10.longitude(), grid.getRowIndex(coord10.latitude())), 31);
-//    EXPECT_EQ(grid.getColIndex(coord11.longitude(), grid.getRowIndex(coord11.latitude())), 18);
-//    EXPECT_EQ(grid.getColIndex(coord12.longitude(), grid.getRowIndex(coord12.latitude())), 18);
-
-    std::shared_ptr<A> a1 = std::make_shared<A>(1, "A");
-    std::shared_ptr<A> a2 = std::make_shared<A>(1, "A");
-    std::shared_ptr<A> a3 = std::make_shared<A>(1, "A");
-    std::shared_ptr<A> a4 = std::make_shared<A>(2, "A");
-    std::shared_ptr<A> a5 = std::make_shared<A>(2, "A");
-    std::shared_ptr<B> b1 = std::make_shared<B>(1, "B");
-    std::shared_ptr<B> b2 = std::make_shared<B>(2, "B");
-    std::shared_ptr<C> c1 = std::make_shared<C>(1, "C");
-    std::shared_ptr<C> c2 = std::make_shared<C>(2, "C");
-    std::shared_ptr<O> o1 = std::make_shared<A>(1, "OA");
-    std::shared_ptr<O> o2 = std::make_shared<B>(2, "OB");
-    std::shared_ptr<O> o3 = std::make_shared<C>(3, "OC");
-
-    const auto cell = grid.getCellAt(coord1);
-    const auto &viewA = cell->getEntitiesView<A>();
-    const auto &viewB = cell->getEntitiesView<B>();
-    const auto &viewC = cell->getEntitiesView<C>();
-    //    const auto &viewO = cell->getEntitiesView<O>(); //should not work because O is not concrete class
-    EXPECT_EQ(viewA.size(), (std::size_t) 0);
-    EXPECT_EQ(viewB.size(), (std::size_t) 0);
-    EXPECT_EQ(viewC.size(), (std::size_t) 0);
-
-    grid.add(coord1, *a1);
-    grid.add(coord1, *a2);
-    grid.add(coord1, *a3);
-    grid.add(coord1, *a4);
-    grid.add(coord1, *a5);
-    grid.add(coord1, *b1);
-    grid.add(coord1, *b2);
-    grid.add(coord1, *c1);
-    grid.add(coord1, *c2);
-    grid.add(coord1, *o1);
-    grid.add(coord1, *o2);
-    grid.add(coord1, *o3);
-
-    EXPECT_EQ(viewA.size(), (std::size_t)6);
-    EXPECT_EQ(viewB.size(), (std::size_t)3);
-    EXPECT_EQ(viewC.size(), (std::size_t)3);
-    EXPECT_EQ(cell->numEntities<A>(), (std::size_t)6);
-    EXPECT_EQ(cell->numEntities<B>(), (std::size_t)3);
-    EXPECT_EQ(cell->numEntities<C>(), (std::size_t)3);
-    EXPECT_EQ(cell->numEntities(), (std::size_t)12); // there are two O's
-
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 1; }).size(), (std::size_t)4); // a1, a2, a3, o1
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 2; }).size(), (std::size_t) 2); // a4, a5
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 0; }).size(), (std::size_t)0); // none
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 0; }, 5).size(), (std::size_t)0); // none
-    EXPECT_EQ(cell->getEntities<A>([](A &a) { return a.id == 1; }, 2).size(), (std::size_t)2);
-}
-
 /**
  * Tests Invalid coordinates queries.
  */
@@ -454,9 +477,9 @@ TEST(GISEx4, DocTest) {
 }
 
 TEST_F(RandomTest, randomTest) {
-    constexpr int gridSize = 40;
-    int entityAmount = 100;
-    int coordinatesAmount = 20;
+    constexpr int gridSize = 600;
+    int entityAmount = 1000;
+    int coordinatesAmount = 50;
     Grid<A, gridSize> grid;
     EntitiesContainer<A> container; // container to store references to the entities
     std::vector<Coordinates> coordVec;
