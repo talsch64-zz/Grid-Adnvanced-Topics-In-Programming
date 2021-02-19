@@ -32,6 +32,7 @@ class Grid {
         const std::size_t colIndex;
         Coordinates coordinates; // coordinates inside the cell (the center)
         mutable std::unordered_map<std::type_index, std::vector<Entity *>> entitiesMap;
+        mutable std::size_t entityAmount = 0;
 
         Cell(std::size_t rowIndex, std::size_t colIndex, Coordinates coordinates) : rowIndex(rowIndex),
                                                                                     colIndex(colIndex),
@@ -142,10 +143,6 @@ class Grid {
          * @return number of Entities inside the cell
          */
         std::size_t numEntities() const noexcept {
-            std::size_t entityAmount = 0;
-            for (auto &item: entitiesMap) {
-                entityAmount += item.second.size();
-            }
             return entityAmount;
         }
 
@@ -191,7 +188,7 @@ class Grid {
         requires derived_or_same<ActualT, Entity>
         void addEntity(ActualT &entity) const {
             entitiesMap[typeid(entity)].push_back(&entity);
-
+            entityAmount++;
         }
 
         /**
