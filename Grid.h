@@ -171,13 +171,11 @@ class Grid {
          * There is no defined order for the iteration. Iteration itself shall not create any copies.
          */
         auto begin() const noexcept {
-            auto iter = entitiesMap.begin();
-            // It is possible that there are empty entities vector after getEntitiesView was called.
-            // There for we need to skip those empty entity containers.
-            while (iter != entitiesMap.end() && (*iter).second.begin() == ((*iter).second.end())) {
-                iter++;
+            if (numEntities() == 0) {
+                // just for optimization in case there are no entities inside and getEntitiesView was called
+                return end();
             }
-            return CellIterator(iter, entitiesMap.end());
+            return CellIterator(entitiesMap.begin(), entitiesMap.end());
         }
 
         auto end() const noexcept {
@@ -218,8 +216,11 @@ class Grid {
             CellIterator(typename std::unordered_map<std::type_index, std::vector<Entity *>>::iterator begin,
                          typename std::unordered_map<std::type_index, std::vector<Entity *>>::iterator end)
                     : typeIter(begin), typeIterEnd(end) {
+                while (typeIter != typeIterEnd && (*typeIter).second.begin() == (*typeIter).second.end()) {
+                    // while the current type is not empty - may be empty after calling getEntitiesView
+                    typeIter++;
+                }
                 if (typeIter != typeIterEnd) {
-                    // begin might be equal to entitiesMap.end() when calling Cell::end()
                     entityIter = (*typeIter).second.begin();
                 }
             }
@@ -231,10 +232,10 @@ class Grid {
 
             CellIterator &operator++() {
                 entityIter++;
-                if (entityIter == (*typeIter).second.end()) { // reached the end of the current type
-                    typeIter++;
+                while (typeIter != typeIterEnd && entityIter == (*typeIter).second.end()) {
+                    // skip empty vector of entities - may be empty after calling getEntitiesView
+                    typeIter++; // move to the next type
                     if (typeIter != typeIterEnd) {
-                        // if not reached the end of entitiesMap types move to the next type
                         entityIter = (*typeIter).second.begin();
                     }
                 }
