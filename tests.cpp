@@ -313,6 +313,9 @@ TEST(GISEx4, RowsAndColsCalculations) {
     Coordinates coord12(Longitude(180), Latitude(0));
     EXPECT_EQ(grid.numRows(), (std::size_t) 18);
     EXPECT_EQ(grid.numCols(coord1), (std::size_t) 36);
+    EXPECT_EQ(grid.numCols(coord3), (std::size_t) 4); // north poll
+    EXPECT_EQ(grid.numCols(coord5), (std::size_t) 4); // south poll
+
 
     // Internal testing:
 //    EXPECT_EQ(grid.getRowIndex(coord0.latitude()), 9); // 10'th row
@@ -333,10 +336,26 @@ TEST(GISEx4, RowsAndColsCalculations) {
     Grid<O, 25> grid2;
     EXPECT_EQ(grid2.numRows(), (std::size_t) 25);
     EXPECT_EQ(grid2.numCols(coord0), (std::size_t) 50);
+    EXPECT_EQ(grid2.numCols(coord3), (std::size_t) 4); // north poll
+    EXPECT_EQ(grid2.numCols(coord5), (std::size_t) 4); // south poll
 
     Grid<O, 33> grid3;
     EXPECT_EQ(grid3.numRows(), (std::size_t) 33);
     EXPECT_EQ(grid3.numCols(coord0), (std::size_t) 66);
+    EXPECT_EQ(grid3.numCols(coord3), (std::size_t) 4); // north poll
+    EXPECT_EQ(grid3.numCols(coord5), (std::size_t) 4); // south poll
+
+    Grid<O, 2> grid4;
+    EXPECT_EQ(grid4.numRows(), (std::size_t) 2);
+    EXPECT_EQ(grid4.numCols(coord0), (std::size_t) 2);
+    EXPECT_EQ(grid4.numCols(coord3), (std::size_t) 2); // north poll
+    EXPECT_EQ(grid4.numCols(coord5), (std::size_t) 2); // south poll
+
+    Grid<O, 1> grid5;
+    EXPECT_EQ(grid5.numRows(), (std::size_t) 1);
+    EXPECT_EQ(grid5.numCols(coord0), (std::size_t) 1);
+    EXPECT_EQ(grid5.numCols(coord3), (std::size_t) 1); // north poll
+    EXPECT_EQ(grid5.numCols(coord5), (std::size_t) 1); // south poll
 }
 
 TEST(GISEx4, BasicFunctionality) {
