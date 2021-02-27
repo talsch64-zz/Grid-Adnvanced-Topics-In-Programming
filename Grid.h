@@ -1,5 +1,3 @@
-// talschneider 206897514
-
 #pragma once
 
 #include "GISNamedTypes.h"
